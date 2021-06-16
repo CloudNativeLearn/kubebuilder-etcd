@@ -18,6 +18,9 @@ package controllers
 
 import (
 	"context"
+	appsv1 "k8s.io/api/apps/v1"
+	corev1 "k8s.io/api/core/v1"
+	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 
 	"github.com/go-logr/logr"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -38,10 +41,49 @@ type EtcdClusterReconciler struct {
 // +kubebuilder:rbac:groups=etcd.fyl253711.gitee.com,resources=etcdclusters/status,verbs=get;update;patch
 
 func (r *EtcdClusterReconciler) Reconcile(req ctrl.Request) (ctrl.Result, error) {
-	_ = context.Background()
-	_ = r.Log.WithValues("etcdcluster", req.NamespacedName)
+	ctx := context.Background()
+	log := r.Log.WithValues("etcdcluster", req.NamespacedName)
 
 	// your logic here
+
+	// 首先我们获取 etcdcluster 实例
+	var etcdCluster etcdv1alpha1.EtcdCluster
+	if err := r.Get(ctx, req.NamespacedName, &etcdCluster); err != nil {
+		// 如果EtcdCluster 是被删除的，那么我们应该忽略掉
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	// 已经获取到了 EtcdCluster 实例
+	// 创建/更新对应的StatefulSet 以及 Headless SVC 对象
+	// 调谐：观察当前的状态和期望的状态和期望的状态进行对比
+
+	// CreateOrUpdate Service
+	var svc corev1.Service
+	svc.Name = etcdCluster.Name
+	svc.Namespace = etcdCluster.Namespace
+	or, err := ctrl.CreateOrUpdate(ctx, r, &svc, func() error {
+		// 调谐的函数必须在这里面实现，实际上就是去拼装我们的Service
+		MutateHeadlessSvc(&etcdCluster, &svc)
+		return controllerutil.SetControllerReference(&etcdCluster, &svc, r.Scheme)
+	})
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	log.Info("CreateOrUpdate Result", "Service", or)
+
+	// CreateOrUpdate StatefulSet
+	var sts appsv1.StatefulSet
+	sts.Name = etcdCluster.Name
+	sts.Namespace = etcdCluster.Namespace
+	or, err = ctrl.CreateOrUpdate(ctx, r, &sts, func() error {
+		// 调谐的函数必须在这里面实现，实际上就是去拼装我们的Service
+		MutateStatefulSet(&etcdCluster, &sts)
+		return controllerutil.SetControllerReference(&etcdCluster, &sts, r.Scheme)
+	})
+	if err != nil {
+		return ctrl.Result{}, err
+	}
+	log.Info("CreateOrUpdate Result", "StatefulSet", or)
 
 	return ctrl.Result{}, nil
 }
