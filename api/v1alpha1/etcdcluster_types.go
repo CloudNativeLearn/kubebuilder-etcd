@@ -1,5 +1,5 @@
 /*
-Copyright 2021.
+
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -28,8 +28,8 @@ type EtcdClusterSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
 
-	// Foo is an example field of EtcdCluster. Edit etcdcluster_types.go to remove/update
-	Foo string `json:"foo,omitempty"`
+	Size  uint   `json:"size"`
+	Image string `json:"image"`
 }
 
 // EtcdClusterStatus defines the observed state of EtcdCluster
@@ -38,8 +38,7 @@ type EtcdClusterStatus struct {
 	// Important: Run "make" to regenerate code after modifying this file
 }
 
-//+kubebuilder:object:root=true
-//+kubebuilder:subresource:status
+// +kubebuilder:object:root=true
 
 // EtcdCluster is the Schema for the etcdclusters API
 type EtcdCluster struct {
@@ -50,7 +49,7 @@ type EtcdCluster struct {
 	Status EtcdClusterStatus `json:"status,omitempty"`
 }
 
-//+kubebuilder:object:root=true
+// +kubebuilder:object:root=true
 
 // EtcdClusterList contains a list of EtcdCluster
 type EtcdClusterList struct {

@@ -1,16 +1,7 @@
 domain: fyl253711.gitee.com
-layout:
-- go.kubebuilder.io/v3
-projectName: kubebuilder-etcd
 repo: gitee.com/fyl-cloud-computing/kubebuilder-imoocpo
 resources:
-- api:
-    crdVersion: v1
-    namespaced: true
-  controller: true
-  domain: fyl253711.gitee.com
-  group: etcd
+- group: etcd
   kind: EtcdCluster
-  path: gitee.com/fyl-cloud-computing/kubebuilder-imoocpo/api/v1alpha1
   version: v1alpha1
-version: "3"
+version: "2"
