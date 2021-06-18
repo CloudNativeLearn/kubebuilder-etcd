@@ -1,0 +1,7 @@
+apiVersion: etcd.fyl253711.gitee.com/v1alpha1
+kind: EtcdBackup
+metadata:
+  name: etcdbackup-sample
+spec:
+  # Add fields here
+  foo: bar

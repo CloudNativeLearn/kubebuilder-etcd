@@ -8,6 +8,15 @@ metadata:
   creationTimestamp: null
   name: etcdclusters.etcd.fyl253711.gitee.com
 spec:
+  additionalPrinterColumns:
+  - JSONPath: .spec.image
+    description: The Docker Image of MyAPP
+    name: Image
+    type: string
+  - JSONPath: .spec.size
+    description: Replicas Of Etcd
+    name: Size
+    type: integer
   group: etcd.fyl253711.gitee.com
   names:
     kind: EtcdCluster
@@ -15,6 +24,8 @@ spec:
     plural: etcdclusters
     singular: etcdcluster
   scope: Namespaced
+  subresources:
+    status: {}
   validation:
     openAPIV3Schema:
       description: EtcdCluster is the Schema for the etcdclusters API
